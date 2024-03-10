@@ -9,8 +9,10 @@ const handler = NextAuth({
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    })
+    }),
   ],
+  secret: process.env.NEXT_PUBLIC_SECRET, // To be added,
+
   callbacks: {
     async session({ session }) {
       // store the user id from MongoDB to session
@@ -35,13 +37,13 @@ const handler = NextAuth({
           });
         }
 
-        return true
+        return true;
       } catch (error) {
         console.log("Error checking if user exists: ", error.message);
-        return false
+        return false;
       }
     },
-  }
-})
+  },
+});
 
 export { handler as GET, handler as POST }
