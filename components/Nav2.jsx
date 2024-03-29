@@ -23,16 +23,16 @@ function classNames(...classes) {
 
 export default function Example() {
 
-    const { data: session } = useSession();
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [providers, setProviders] = useState(null);
+    // const { data: session } = useSession();
+    // const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    // const [providers, setProviders] = useState(null);
 
-    useEffect(() => {
-    (async () => {
-        const res = await getProviders();
-        setProviders(res);
-    })();
-    }, []);
+    // useEffect(() => {
+    // (async () => {
+    //     const res = await getProviders();
+    //     setProviders(res);
+    // })();
+    // }, []);
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
 
 const Login = ( props ) => {
-  const { data: session } = useSession();
+  // const { data: session } = useSession();
   const [nickname, setNickname] = useState("");
     const [leaderboard, setLeaderboard] = useState([]);
 
@@ -48,7 +48,7 @@ const Login = ( props ) => {
                 abilities, and make learning an adventure.
               </p>
               <div className="mt-10">
-                {!session ? (
+                {/* {!session ? (
                   <form
                     onSubmit={handleNicknameSubmit}
                     className="flex items-center justify-center gap-x-6"
@@ -73,7 +73,7 @@ const Login = ( props ) => {
                   <span className="text-sm font-semibold text-gray-900">
                     Welcome back!
                   </span>
-                )}
+                )} */}
               </div>
               <div className="mt-8">
                 <h3 className="text-lg font-semibold">Top Players</h3>
