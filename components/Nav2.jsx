@@ -90,7 +90,7 @@ export default function Example() {
 
                 {/* Profile dropdown */}
                 <Menu as="div" className="relative ml-3">
-                <div>
+                {/* <div>
                     {session ? (
                     <div className="flex items-center space-x-2"> 
                         <img
@@ -118,7 +118,7 @@ export default function Example() {
                         ))}
                     </>
                     )}
-                </div>
+                </div> */}
                 </Menu>
 
               </div>

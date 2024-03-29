@@ -1,11 +1,35 @@
-"use client";
+"user client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
 
-const Feature = () => {
+const Login = ( props ) => {
   const { data: session } = useSession();
+  const [nickname, setNickname] = useState("");
+    const [leaderboard, setLeaderboard] = useState([]);
 
+
+      useEffect(() => {
+        const fetchLeaderboard = async () => {
+          try {
+            const response = await fetch("/api/scores/leaderboard");
+            if (!response.ok) throw new Error("Failed to fetch leaderboard");
+            const data = await response.json();
+            setLeaderboard(data.slice(0, 10)); // Assuming the API returns sorted data; otherwise, sort it here
+          } catch (error) {
+            console.error("Failed to fetch leaderboard:", error);
+          }
+        };
+
+        fetchLeaderboard();
+      }, []);
+
+  const handleNicknameSubmit = (event) => {
+    event.preventDefault();
+    console.log(nickname); // Demonstrative logging
+    props.onNicknameSubmit(nickname); // Pass the nickname to the callback
+    console.log(props);
+  };
   return (
     <div className="overflow-hidden bg-white py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -23,19 +47,46 @@ const Feature = () => {
                 is designed to strengthen your math skills, boost cognitive
                 abilities, and make learning an adventure.
               </p>
-              <div className="mt-10 flex items-center justify-center gap-x-6">
+              <div className="mt-10">
                 {!session ? (
-                  <button
-                    onClick={() => signIn()}
-                    className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  <form
+                    onSubmit={handleNicknameSubmit}
+                    className="flex items-center justify-center gap-x-6"
                   >
-                    Get started
-                  </button>
+                    <input
+                      type="text"
+                      placeholder="Enter your nickname"
+                      className="rounded-md border border-gray-300 p-2.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                      value={nickname}
+                      onChange={(e) => setNickname(e.target.value)}
+                      required
+                    />
+
+                    <button
+                      type="submit"
+                      className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    >
+                      Enter
+                    </button>
+                  </form>
                 ) : (
                   <span className="text-sm font-semibold text-gray-900">
                     Welcome back!
                   </span>
                 )}
+              </div>
+              <div className="mt-8">
+                <h3 className="text-lg font-semibold">Top Players</h3>
+                <div className="mt-4 rounded-lg border border-gray-200 bg-white p-4 shadow">
+                  <ul className="divide-y divide-gray-200">
+                    {leaderboard.slice(0, 5).map((entry, index) => (
+                      <li key={index} className="flex justify-between py-2">
+                        <span className="text-sm">{entry.username}</span>
+                        <span className="text-sm font-bold">{entry.score}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -50,4 +101,4 @@ const Feature = () => {
   );
 };
 
-export default Feature;
+export default Login;

@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 let isConnected = false; // track the connection
 
+
 export const connectToDB = async () => {
   mongoose.set('strictQuery', true);
 
@@ -21,6 +22,7 @@ export const connectToDB = async () => {
 
     console.log('MongoDB connected')
   } catch (error) {
+    console.log("baddd")
     console.log(error);
   }
 }
