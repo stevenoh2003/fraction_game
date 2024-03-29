@@ -48,7 +48,7 @@ const Login = ( props ) => {
                 abilities, and make learning an adventure.
               </p>
               <div className="mt-10">
-                {/* {!session ? (
+
                   <form
                     onSubmit={handleNicknameSubmit}
                     className="flex items-center justify-center gap-x-6"
@@ -69,11 +69,7 @@ const Login = ( props ) => {
                       Enter
                     </button>
                   </form>
-                ) : (
-                  <span className="text-sm font-semibold text-gray-900">
-                    Welcome back!
-                  </span>
-                )} */}
+
               </div>
               <div className="mt-8">
                 <h3 className="text-lg font-semibold">Top Players</h3>
