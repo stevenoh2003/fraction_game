@@ -48,28 +48,26 @@ const Login = ( props ) => {
                 abilities, and make learning an adventure.
               </p>
               <div className="mt-10">
+                <form
+                  onSubmit={handleNicknameSubmit}
+                  className="flex items-center justify-center gap-x-6"
+                >
+                  <input
+                    type="text"
+                    placeholder="Enter your nickname"
+                    className="rounded-md border border-gray-300 p-2.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    required
+                  />
 
-                  <form
-                    onSubmit={handleNicknameSubmit}
-                    className="flex items-center justify-center gap-x-6"
+                  <button
+                    type="submit"
+                    className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                   >
-                    <input
-                      type="text"
-                      placeholder="Enter your nickname"
-                      className="rounded-md border border-gray-300 p-2.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                      value={nickname}
-                      onChange={(e) => setNickname(e.target.value)}
-                      required
-                    />
-
-                    <button
-                      type="submit"
-                      className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    >
-                      Enter
-                    </button>
-                  </form>
-
+                    Enter
+                  </button>
+                </form>
               </div>
               <div className="mt-8">
                 <h3 className="text-lg font-semibold">Top Players</h3>
@@ -89,7 +87,7 @@ const Login = ( props ) => {
           <img
             src="/assets/images/box.png"
             alt="Product screenshot"
-            className="w-[24rem] max-w-none rounded-xl sm:w-[28.5rem] md:-ml-4 lg:-ml-0 -mt-30"
+            className="hidden sm:block w-[20rem] max-w-none rounded-xl sm:w-[28.5rem] md:-ml-4 lg:-ml-0 -mt-30"
           />
         </div>
       </div>
