@@ -5,91 +5,20 @@ import { useRouter } from 'next/router';
 
 
 import Modal from "@components/Modal";
-const generateFractionQuestions = (levels = 10) => {
-  const questions = [];
-  let maxNumber = 10;
-  let idCounter = 0; // Counter to assign unique IDs
-  const gcd = (x, y) => {
-    while (y !== 0) {
-      let t = y;
-      y = x % y;
-      x = t;
-    }
-    return x;
-  };
-
-  for (let level = 1; level <= levels; level++) {
-    const numbers = Array.from({ length: 4 }, () => ({
-      id: idCounter++,
-      number: Math.floor(Math.random() * maxNumber) + 1,
-      available: true,
-    })).sort((a, b) => b.number - a.number);
-    let targetNumerator, targetDenominator;
-
-    // Define these outside to ensure they are accessible in the fallback
-    const [a, b, c, d] = numbers;
-
-    if (level < 3) {
-      targetNumerator = a * b;
-      targetDenominator = b * (Math.floor(Math.random() * 5) + 2);
-    } else if (level < 6) {
-      if (Math.random() < 0.5) {
-        targetNumerator = a * (b + c);
-      } else {
-        targetNumerator = (a + b) * c;
-      }
-      targetDenominator = b * c + a;
-    } else {
-      const operations = ["+", "*"];
-      const randomOperation =
-        operations[Math.floor(Math.random() * operations.length)];
-      targetNumerator = randomOperation === "+" ? a * b + c * d : a * b * c;
-      targetDenominator = c * d + (a + b);
-    }
-
-    const commonDivisor = gcd(targetNumerator, targetDenominator);
-    targetNumerator /= commonDivisor;
-    targetDenominator /= commonDivisor;
-
-    if (targetDenominator > targetNumerator && targetNumerator > 1) {
-    questions.push({
-      targetNumerator: adjustedNumerator,
-      targetDenominator: adjustedDenominator,
-      numbers: numbers,
-    });
-
-    } else {
-      // To ensure at least some questions are added
-      questions.push({
-        targetNumerator: a * c,
-        targetDenominator: b + d,
-        numbers,
-      });
-    }
-
-    maxNumber += 5;
-  }
-
-  return questions;
-};
-
-const questions = generateFractionQuestions(10);
-console.log(questions);
+import { q1, q2, q3, q4, q5, q6, q7 } from './questions'; // Adjust the path as necessary
 
 
 
-// const questions = [
-//   { targetNumerator: 1, targetDenominator: 2, numbers: [1, 2, 3, 4] },
-//   { targetNumerator: 6, targetDenominator: 19, numbers: [3, 2, 1, 9] },
-//   { targetNumerator: 99, targetDenominator: 8, numbers: [11, 9, 8, 1] },
-//   { targetNumerator: 45, targetDenominator: 21, numbers: [5, 3, 7, 9] },
-//   { targetNumerator: 23, targetDenominator: 32, numbers: [2, 3, 4, 8] },
-//   { targetNumerator: 69, targetDenominator: 18, numbers: [3, 13, 2, 9] },
-//   // { targetNumerator: 6, targetDenominator: 7, numbers: [3, 2, 7, 1] },
-//   // { targetNumerator: 8, targetDenominator: 9, numbers: [4, 9, 2, 16] },
-//   // { targetNumerator: 9, targetDenominator: 10, numbers: [9, 10, 13, 14] },
-//   // { targetNumerator: 11, targetDenominator: 12, numbers: [11, 12, 15, 16] },
-// ];
+const questions = [
+  q1[Math.floor(Math.random() * q1.length)],
+  q2[Math.floor(Math.random() * q2.length)],
+  q3[Math.floor(Math.random() * q3.length)],
+  q4[Math.floor(Math.random() * q4.length)],
+  q5[Math.floor(Math.random() * q5.length)],
+  q6[Math.floor(Math.random() * q6.length)],
+  q7[Math.floor(Math.random() * q7.length)],
+];
+
 
 const Game = ( {nickname} ) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -100,6 +29,56 @@ const Game = ( {nickname} ) => {
   const [navigate, setNavigate] = useState(false);
   const [isLeaderboardVisible, setIsLeaderboardVisible] = useState(false); // State for toggling leaderboard visibility
   const [showCheckMark, setShowCheckMark] = useState(false); // State to control when to show the check mark animation
+
+  const [timer, setTimer] = useState(0);
+  const [timeElapsed, setTimeElapsed] = useState(0);
+  const [timerId, setTimerId] = useState(null);
+const [roundsCompleted, setRoundsCompleted] = useState(0);
+const [additionalScore, setAdditionalScore] = useState(0);
+
+  // Timer functions
+  // Timer management functions
+const startTimer = () => {
+  let startTime = Date.now();
+
+  const tick = () => {
+    const elapsed = Date.now() - startTime;
+    setTimer(Math.floor(elapsed / 1000)); // Update timer every second
+
+    if (timerId !== null) {
+      requestAnimationFrame(tick);
+    }
+  };
+
+  stopTimer(); // Clear any existing timer
+  setTimerId(requestAnimationFrame(tick));
+};
+
+const stopTimer = () => {
+  if (timerId !== null) {
+    cancelAnimationFrame(timerId);
+    setTimerId(null);
+  }
+};
+
+
+  const resetTimer = () => {
+    stopTimer(); // Ensure the current timer is stopped before resetting
+    setTimer(0);
+    startTimer(); // Restart the timer after resetting
+  };
+  useEffect(() => {
+    startTimer();
+
+    // Cleanup function to clear interval when the component unmounts or question changes
+    return () => stopTimer();
+  }, [currentQuestionIndex]); // Add currentQuestionIndex to dependencies to reset timer on question change
+
+  useEffect(() => {
+    // Reset and restart timer when the question changes
+    resetTimer();
+    return () => stopTimer(); // Ensure cleanup happens on every dependency change
+  }, [currentQuestionIndex]);
 
   // Initialize game state based on the first question
   const [targetNumerator, setTargetNumerator] = useState(
@@ -204,11 +183,11 @@ const Game = ( {nickname} ) => {
     );
 
     if (type === "number") {
-      setCards(
-        cards.map((card) =>
-          card.number === item ? { ...card, available: false } : card
-        )
-      );
+      // setCards(
+      //   cards.map((card) =>
+      //     card.number === item ? { ...card, available: false } : card
+      //   )
+      // );
 
       // Check if the last item in the zone is a number and combine if current item is also a number
       if (
@@ -238,25 +217,40 @@ const Game = ( {nickname} ) => {
       [zone]: [...userFraction[zone], { item, type }],
     });
   };
-const removeFromFraction = (zone, index) => {
-  const item = userFraction[zone][index];
-  if (item.type === "number") {
-    setCards(
-      cards.map((card) =>
-        card.id === item.id ? { ...card, available: true } : card
-      )
-    );
-  }
+  const removeFromFraction = (zone, index) => {
+    const item = userFraction[zone][index];
+    if (item.type === "number") {
+      if (item.item.toString().length > 1) {
+        // Check if the number has more than one digit
+        // Split the number into its original components
+        const originalNumbers = item.item.toString().split("").map(Number);
+        // Update the cards to set these numbers as available again
+        setCards(
+          cards.map((card) =>
+            originalNumbers.includes(card.number)
+              ? { ...card, available: true }
+              : card
+          )
+        );
+      } else {
+        // For single digit numbers, simply set them as available
+        setCards(
+          cards.map((card) =>
+            card.number === item.item ? { ...card, available: true } : card
+          )
+        );
+      }
+    }
 
-  // Remove the item from the userFraction
-  setUserFraction({
-    ...userFraction,
-    [zone]: [
-      ...userFraction[zone].slice(0, index),
-      ...userFraction[zone].slice(index + 1),
-    ],
-  });
-};
+    // Remove the item from the userFraction
+    setUserFraction({
+      ...userFraction,
+      [zone]: [
+        ...userFraction[zone].slice(0, index),
+        ...userFraction[zone].slice(index + 1),
+      ],
+    });
+  };
 
   const onDragOver = (e) => {
     e.preventDefault();
@@ -276,20 +270,30 @@ const removeFromFraction = (zone, index) => {
   };
 
   const checkFraction = () => {
+    stopTimer();
     const numeratorValue = computeFractionPart(userFraction.numerator);
     const denominatorValue = computeFractionPart(userFraction.denominator);
     const userFractionValue = numeratorValue / denominatorValue;
     const targetFractionValue = targetNumerator / targetDenominator;
 
     if (userFractionValue === targetFractionValue) {
-      setShowCheckMark(true); // Show the check mark animation
+      const baseScore = 50; // Base score for a correct answer
+      setTimeElapsed(timer)
+      const timePenalty = timeElapsed * 2; // Penalty for time taken
+      const scoreMultiplier = 1 + roundsCompleted * 0.3; // 10% more points for each round completed
+      const potentialScore = Math.max(0, baseScore - timePenalty); // Ensure score doesn't go negative
+      const roundScore = Math.floor(Math.max(10, potentialScore * scoreMultiplier)); // Ensure minimum score is 10
 
-      showModal("Success! You made the correct fraction.", true);
-      // Update the high score without submitting it
-      setHighScore((prevScore) => prevScore + 1);
+      showModal(`Success! You got ${roundScore} points`, true);
+
+      setHighScore((prevScore) => prevScore + roundScore);
+      setRoundsCompleted((prevRounds) => prevRounds + 1);
+
       // Load the next question or cycle back to the first
       const nextQuestionIndex = (currentQuestionIndex + 1) % questions.length;
       setCurrentQuestionIndex(nextQuestionIndex);
+      resetTimer();
+
       // Reset game state for the next question
       setTargetNumerator(questions[nextQuestionIndex].targetNumerator);
       setTargetDenominator(questions[nextQuestionIndex].targetDenominator);
@@ -300,10 +304,6 @@ const removeFromFraction = (zone, index) => {
           available: true,
         }))
       );
-          setTimeout(() => {
-            setShowCheckMark(false); // Hide the check mark animation after 3 seconds
-            // Rest of your code to handle correct fraction guess
-          }, 1000);
     } else {
       submitScore(nickname, highScore);
       showModal("Game over!", true, true);
@@ -312,7 +312,7 @@ const removeFromFraction = (zone, index) => {
 
   return (
     <div className="relative flex justify-center items-center h-screen bg-gray-100">
-      <div className="z-10 flex flex-col lg:flex-row bg-white shadow-lg rounded-lg overflow-hidden w-full lg:w-2/4 lg:mr-10 h-screen">
+      <div className="z-1 flex flex-col lg:flex-row bg-white shadow-lg rounded-lg overflow-hidden w-full lg:w-2/4 lg:mr-10 h-screen">
         {showCheckMark && (
           <div className="fixed inset-0 flex items-center justify-center z-990 bg-black bg-opacity-50">
             <svg
@@ -342,7 +342,7 @@ const removeFromFraction = (zone, index) => {
             ></div>
             <div className="text-lg font-bold">Welcome! {nickname}</div>
             <div className="text-xl font-bold mb-4">
-              High Score: {highScore}
+              High Score: {highScore} | Time: {timer}s
             </div>
           </div>
 
@@ -493,18 +493,19 @@ const removeFromFraction = (zone, index) => {
         <div className="bg-gray-100 p-4 rounded-lg shadow mb-4">
           <div className="font-bold text-lg">Game Rules</div>
           <ul className="list-disc pl-5 mt-2 text-sm">
-            <li>
-              Drag numbers and operations to the numerator or denominator.
-            </li>
+            <li>Try to make the target fraction!</li>
             <li>Match the fraction displayed at the top to win points.</li>
-            <li>Use operations wisely to form the correct fraction.</li>
+            <li>
+              Use operations wisely to form the correct fraction. You can also
+              combine digits to form a number!{" "}
+            </li>
           </ul>
         </div>
         <div className="flex-grow">
           <div className="font-bold mb-2">Global Ranking</div>
           <div
             className="rounded-lg border border-gray-200 bg-white p-4 shadow"
-            style={{ maxHeight: `calc(100% - 300px)`, overflowY: "auto" }} // Adjust the height dynamically
+            style={{ maxHeight: `300px`, overflowY: "auto" }} // Adjust the height dynamically
           >
             <ul className="divide-y divide-gray-200">
               {leaderboard.slice(0, 10).map((entry, index) => (
